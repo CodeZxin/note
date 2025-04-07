@@ -1,0 +1,7 @@
+baseURL = 'https://note.netlify.app/'
+languageCode = 'zh'
+title = 'Note'
+theme = 'hugo-book'
+
+[params]
+      BookTheme = 'dark'

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  InstantStyle：风格保留
+  #
+
+
+  问题
+  #
+
+
+
+风格难以被定义。
+
+
+风格强度和文本可控性之间的平衡。
+
+
+风格泄露（参考图像的内容混入结果）。
+
+
+
+  方法
+  #
+
+
+
+在CLIP空间中，图像嵌入同时包含内容和样式信息，内容嵌入可以通过文本描述得到，可以用图像减去内容得到样式的嵌入表示。
+
+
+up_blocks.0.attentions.1和down_blocks.2.attentions.1分别捕捉风格（颜色、材料、氛围）和空间布局（结构、组成），将参考图像特征专门注入到特定的块中。
+
+
+
+  B-LoRA：隐式分离
+  #
+
+
+  发现
+  #
+
+采样一对内容/风格提示词（p1，p2），某个层使用p1，其余层使用p2，计算生成图和提示词p1的CLIP embedding相似度，来探究SDXL中间六个transformer块的作用。统计分数最高的3个块中，2号和4号块能捕捉内容，5号块能捕捉颜色。
+
+  方法
+  #
+
+在重建图像中，使用提示词“A [v]”，只微调4，5块，可分别得到内容和风格的LoRA，在推理中组合更新预训练网路。
+
+  ZipLoRA：有效合并
+  #
+
+
+  问题
+  #
+
+内容LoRA和风格LoRA直接相加的信号干扰
+
+  发现
+  #
+
+
+
+更新矩阵W是稀疏的，大多数元素接近于零。将大部分小元素归零，模型性能也不受影响，W的大多数列中包含的信息是冗余的。
+
+
+LORA的权重矩阵的列之间的余弦相似性如果是非零的，直接相加会导致信息叠加使信息丢失。
+
+
+
+  方法
+  #
+
+
+
+将每列乘以可学习系数或忽略某些列（稀疏性）最小化LoRA列之间的余弦相似性。
+
+
+最小化合并LoRA和原始单个LoRA模型生成图像之间的差异，来保持合并LoRA独立生成参考主题和风格的能力。
+
+
+
+  K-LoRA：免训练融合
+  #
+
+
+  发现
+  #
+
+
+
+在层子集上应用LoRA可以达到全部层相当的效果。
+
+
+在更早步使用内容LoRA效果更好，更晚的步使用风格LoRA保留风格且不影响内容。
+
+
+
+  方法
+  #
+
+
+
+在每个注意力层中，K-LoRA计算每个要融合的LoRA中的前$$K = {r_{c} \cdot r_{s}}$$个绝对值最大的元素的绝对值之和，确定选择哪个LoRA进行最优融合。
+
+
+越往后风格LoRA越容易被选择
+
+
+平衡风格LoRA和内容LoRA的数值差异，在同一个尺度比较
+
+
+这种选择机制确保了在融合过程中保留了主体和风格最具代表性的特征，有效地平衡了它们的贡献。
+
+
+在元素级别合并两个LORA的注意力层可能会导致风格细节和纹理的平滑，甚至对象特征的丢失。
+
+
+在应用LoRA时，初始扩散步骤负责重建物体和捕获更大的纹理细节，而后续步骤则专注于增强和细化物体的更精细细节和风格上的纹理。
+
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/%E8%AE%BA%E6%96%87/">
+  <meta property="og:site_name" content="Note">
+  <meta property="og:title" content="Note">
+  <meta property="og:description" content="InstantStyle：风格保留#问题#风格难以被定义。
+风格强度和文本可控性之间的平衡。
+风格泄露（参考图像的内容混入结果）。
+方法#在CLIP空间中，图像嵌入同时包含内容和样式信息，内容嵌入可以通过文本描述得到，可以用图像减去内容得到样式的嵌入表示。
+up_blocks.0.attentions.1和down_blocks.2.attentions.1分别捕捉风格（颜色、材料、氛围）和空间布局（结构、组成），将参考图像特征专门注入到特定的块中。
+B-LoRA：隐式分离#发现#采样一对内容/风格提示词（p1，p2），某个层使用p1，其余层使用p2，计算生成图和提示词p1的CLIP embedding相似度，来探究SDXL中间六个transformer块的作用。统计分数最高的3个块中，2号和4号块能捕捉内容，5号块能捕捉颜色。
+方法#在重建图像中，使用提示词“A [v]”，只微调4，5块，可分别得到内容和风格的LoRA，在推理中组合更新预训练网路。
+ZipLoRA：有效合并#问题#内容LoRA和风格LoRA直接相加的信号干扰
+发现#更新矩阵W是稀疏的，大多数元素接近于零。将大部分小元素归零，模型性能也不受影响，W的大多数列中包含的信息是冗余的。
+LORA的权重矩阵的列之间的余弦相似性如果是非零的，直接相加会导致信息叠加使信息丢失。
+方法#将每列乘以可学习系数或忽略某些列（稀疏性）最小化LoRA列之间的余弦相似性。
+最小化合并LoRA和原始单个LoRA模型生成图像之间的差异，来保持合并LoRA独立生成参考主题和风格的能力。
+K-LoRA：免训练融合#发现#在层子集上应用LoRA可以达到全部层相当的效果。
+在更早步使用内容LoRA效果更好，更晚的步使用风格LoRA保留风格且不影响内容。
+方法#在每个注意力层中，K-LoRA计算每个要融合的LoRA中的前$$K = {r_{c} \cdot r_{s}}$$个绝对值最大的元素的绝对值之和，确定选择哪个LoRA进行最优融合。
+越往后风格LoRA越容易被选择
+平衡风格LoRA和内容LoRA的数值差异，在同一个尺度比较
+这种选择机制确保了在融合过程中保留了主体和风格最具代表性的特征，有效地平衡了它们的贡献。
+在元素级别合并两个LORA的注意力层可能会导致风格细节和纹理的平滑，甚至对象特征的丢失。
+在应用LoRA时，初始扩散步骤负责重建物体和捕获更大的纹理细节，而后续步骤则专注于增强和细化物体的更精细细节和风格上的纹理。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>论文 | Note</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/%E8%AE%BA%E6%96%87/">
+<link rel="stylesheet" href="/book.min.2d7fec8e866046a7460a1cc86027535586803606a87c87da3098bcd8d5a2b62d.css" integrity="sha256-LX/sjoZgRqdGChzIYCdTVYaANgaofIfaMJi82NWiti0=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/en.search.min.5e9d61a9b18b32aab1e1169834d68e7f1a5ca0913135a405e900352a5190b9d1.js" integrity="sha256-Xp1hqbGLMqqx4RaYNNaOfxpcoJExNaQF6QA1KlGQudE=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Note</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/hugo/" class="">Hugo</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/%E5%91%A8%E6%8A%A5/" class="">周报</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/%E8%AE%BA%E6%96%87/" class="active">论文</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/%E8%B5%84%E6%BA%90/" class="">资源</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>论文</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#instantstyle风格保留">InstantStyle：风格保留</a>
+      <ul>
+        <li><a href="#问题">问题</a></li>
+        <li><a href="#方法">方法</a></li>
+      </ul>
+    </li>
+    <li><a href="#b-lora隐式分离">B-LoRA：隐式分离</a>
+      <ul>
+        <li><a href="#发现">发现</a></li>
+        <li><a href="#方法-1">方法</a></li>
+      </ul>
+    </li>
+    <li><a href="#ziplora有效合并">ZipLoRA：有效合并</a>
+      <ul>
+        <li><a href="#问题-1">问题</a></li>
+        <li><a href="#发现-1">发现</a></li>
+        <li><a href="#方法-2">方法</a></li>
+      </ul>
+    </li>
+    <li><a href="#k-lora免训练融合">K-LoRA：免训练融合</a>
+      <ul>
+        <li><a href="#发现-2">发现</a></li>
+        <li><a href="#方法-3">方法</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h2 id="instantstyle风格保留">
+  InstantStyle：风格保留
+  <a class="anchor" href="#instantstyle%e9%a3%8e%e6%a0%bc%e4%bf%9d%e7%95%99">#</a>
+</h2>
+<h3 id="问题">
+  问题
+  <a class="anchor" href="#%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<ul>
+<li>
+<p>风格难以被定义。</p>
+</li>
+<li>
+<p>风格强度和文本可控性之间的平衡。</p>
+</li>
+<li>
+<p>风格泄露（参考图像的内容混入结果）。</p>
+</li>
+</ul>
+<h3 id="方法">
+  方法
+  <a class="anchor" href="#%e6%96%b9%e6%b3%95">#</a>
+</h3>
+<ul>
+<li>
+<p>在CLIP空间中，图像嵌入同时包含内容和样式信息，内容嵌入可以通过文本描述得到，可以用图像减去内容得到样式的嵌入表示。</p>
+</li>
+<li>
+<p>up_blocks.0.attentions.1和down_blocks.2.attentions.1分别捕捉风格（颜色、材料、氛围）和空间布局（结构、组成），将参考图像特征专门注入到特定的块中。</p>
+</li>
+</ul>
+<h2 id="b-lora隐式分离">
+  B-LoRA：隐式分离
+  <a class="anchor" href="#b-lora%e9%9a%90%e5%bc%8f%e5%88%86%e7%a6%bb">#</a>
+</h2>
+<h3 id="发现">
+  发现
+  <a class="anchor" href="#%e5%8f%91%e7%8e%b0">#</a>
+</h3>
+<p>采样一对内容/风格提示词（p1，p2），某个层使用p1，其余层使用p2，计算生成图和提示词p1的CLIP embedding相似度，来探究SDXL中间六个transformer块的作用。统计分数最高的3个块中，2号和4号块能捕捉内容，5号块能捕捉颜色。</p>
+<h3 id="方法-1">
+  方法
+  <a class="anchor" href="#%e6%96%b9%e6%b3%95-1">#</a>
+</h3>
+<p>在重建图像中，使用提示词“A [v]”，只微调4，5块，可分别得到内容和风格的LoRA，在推理中组合更新预训练网路。</p>
+<h2 id="ziplora有效合并">
+  ZipLoRA：有效合并
+  <a class="anchor" href="#ziplora%e6%9c%89%e6%95%88%e5%90%88%e5%b9%b6">#</a>
+</h2>
+<h3 id="问题-1">
+  问题
+  <a class="anchor" href="#%e9%97%ae%e9%a2%98-1">#</a>
+</h3>
+<p>内容LoRA和风格LoRA直接相加的信号干扰</p>
+<h3 id="发现-1">
+  发现
+  <a class="anchor" href="#%e5%8f%91%e7%8e%b0-1">#</a>
+</h3>
+<ul>
+<li>
+<p>更新矩阵W是稀疏的，大多数元素接近于零。将大部分小元素归零，模型性能也不受影响，W的大多数列中包含的信息是冗余的。</p>
+</li>
+<li>
+<p>LORA的权重矩阵的列之间的余弦相似性如果是非零的，直接相加会导致信息叠加使信息丢失。</p>
+</li>
+</ul>
+<h3 id="方法-2">
+  方法
+  <a class="anchor" href="#%e6%96%b9%e6%b3%95-2">#</a>
+</h3>
+<ul>
+<li>
+<p>将每列乘以可学习系数或忽略某些列（稀疏性）最小化LoRA列之间的余弦相似性。</p>
+</li>
+<li>
+<p>最小化合并LoRA和原始单个LoRA模型生成图像之间的差异，来保持合并LoRA独立生成参考主题和风格的能力。</p>
+</li>
+</ul>
+<h2 id="k-lora免训练融合">
+  K-LoRA：免训练融合
+  <a class="anchor" href="#k-lora%e5%85%8d%e8%ae%ad%e7%bb%83%e8%9e%8d%e5%90%88">#</a>
+</h2>
+<h3 id="发现-2">
+  发现
+  <a class="anchor" href="#%e5%8f%91%e7%8e%b0-2">#</a>
+</h3>
+<ul>
+<li>
+<p>在层子集上应用LoRA可以达到全部层相当的效果。</p>
+</li>
+<li>
+<p>在更早步使用内容LoRA效果更好，更晚的步使用风格LoRA保留风格且不影响内容。</p>
+</li>
+</ul>
+<h3 id="方法-3">
+  方法
+  <a class="anchor" href="#%e6%96%b9%e6%b3%95-3">#</a>
+</h3>
+<ul>
+<li>
+<p>在每个注意力层中，K-LoRA计算每个要融合的LoRA中的前$$K = {r_{c} \cdot r_{s}}$$个绝对值最大的元素的绝对值之和，确定选择哪个LoRA进行最优融合。</p>
+</li>
+<li>
+<p>越往后风格LoRA越容易被选择</p>
+</li>
+<li>
+<p>平衡风格LoRA和内容LoRA的数值差异，在同一个尺度比较</p>
+</li>
+<li>
+<p>这种选择机制确保了在融合过程中保留了主体和风格最具代表性的特征，有效地平衡了它们的贡献。</p>
+</li>
+<li>
+<p>在元素级别合并两个LORA的注意力层可能会导致风格细节和纹理的平滑，甚至对象特征的丢失。</p>
+</li>
+<li>
+<p>在应用LoRA时，初始扩散步骤负责重建物体和捕获更大的纹理细节，而后续步骤则专注于增强和细化物体的更精细细节和风格上的纹理。</p>
+</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#instantstyle风格保留">InstantStyle：风格保留</a>
+      <ul>
+        <li><a href="#问题">问题</a></li>
+        <li><a href="#方法">方法</a></li>
+      </ul>
+    </li>
+    <li><a href="#b-lora隐式分离">B-LoRA：隐式分离</a>
+      <ul>
+        <li><a href="#发现">发现</a></li>
+        <li><a href="#方法-1">方法</a></li>
+      </ul>
+    </li>
+    <li><a href="#ziplora有效合并">ZipLoRA：有效合并</a>
+      <ul>
+        <li><a href="#问题-1">问题</a></li>
+        <li><a href="#发现-1">发现</a></li>
+        <li><a href="#方法-2">方法</a></li>
+      </ul>
+    </li>
+    <li><a href="#k-lora免训练融合">K-LoRA：免训练融合</a>
+      <ul>
+        <li><a href="#发现-2">发现</a></li>
+        <li><a href="#方法-3">方法</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
