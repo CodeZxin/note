@@ -35,8 +35,8 @@
    git init
    git add .
    git commit -m <message>
-   git remote add <name> <url>
-   git push <remote> <local branch>:<remote branch>
+   git remote add origin <url>
+   git push -u origin main
    ```
 
 `_index.md`常用属性
