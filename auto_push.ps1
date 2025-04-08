@@ -17,7 +17,3 @@ if ($changes -ne $null)
     # 推送到 GitHub
     git push origin main
 }
-else
-{
-    Write-Output "No changes detected."
-}
