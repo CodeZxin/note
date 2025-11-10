@@ -1,6 +1,3 @@
-> [vscode优化使用体验篇（设置 | 插件）](https://blog.csdn.net/qq_51173321/article/details/126287293)
-> [最新最全 VSCODE 插件推荐（2025版）](https://blog.csdn.net/u011262253/article/details/113879997)
-
 ## 配置
 
 ```json
@@ -30,4 +27,8 @@
 ```
 
 ## 插件
+
+[vscode优化使用体验篇（设置 | 插件）](https://blog.csdn.net/qq_51173321/article/details/126287293)  
+
+[最新最全 VSCODE 插件推荐（2025版）](https://blog.csdn.net/u011262253/article/details/113879997)
 

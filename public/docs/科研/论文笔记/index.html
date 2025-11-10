@@ -90,8 +90,8 @@ LORA的权重矩阵的列之间的余弦相似性如果是非零的，直接相�
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
 <meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/%E7%A7%91%E7%A0%94/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
-  <meta property="og:site_name" content="Note">
-  <meta property="og:title" content="Note">
+  <meta property="og:site_name" content="Zxin">
+  <meta property="og:title" content="Zxin">
   <meta property="og:description" content="InstantStyle：风格保留 # 问题 # 风格难以被定义。 风格强度和文本可控性之间的平衡。 风格泄露（参考图像的内容混入结果）。 方法 # 在CLIP空间中，图像嵌入同时包含内容和样式信息，内容嵌入可以通过文本描述得到，可以用图像减去内容得到样式的嵌入表示。 up_blocks.0.attentions.1和down_blocks.2.attentions.1分别捕捉风格（颜色、材料、氛围）和空间布局（结构、组成），将参考图像特征专门注入到特定的块中。 B-LoRA：隐式分离 # 发现 # 采样一对内容/风格提示词（p1，p2），某个层使用p1，其余层使用p2，计算生成图和提示词p1的CLIP embedding相似度，来探究SDXL中间六个transformer块的作用。统计分数最高的3个块中，2号和4号块能捕捉内容，5号块能捕捉颜色。
 方法 # 在重建图像中，使用提示词“A [v]”，只微调4，5块，可分别得到内容和风格的LoRA，在推理中组合更新预训练网路。
 ZipLoRA：有效合并 # 问题 # 内容LoRA和风格LoRA直接相加的信号干扰
@@ -99,13 +99,13 @@ ZipLoRA：有效合并 # 问题 # 内容LoRA和风格LoRA直接相加的信号�
   <meta property="og:locale" content="zh">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
-<title>论文笔记 | Note</title>
+<title>论文笔记 | Zxin</title>
 <link rel="icon" href="/favicon.png" >
 <link rel="manifest" href="/manifest.json">
 <link rel="canonical" href="http://localhost:1313/docs/%E7%A7%91%E7%A0%94/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
-<link rel="stylesheet" href="/book.min.fd39ad20cb6db54db836e84a1be9516780ad6aa6961bbd9a6b08e9f24f44785f.css" integrity="sha256-/TmtIMtttU24NuhKG&#43;lRZ4CtaqaWG72aawjp8k9EeF8=" crossorigin="anonymous">
+<link rel="stylesheet" href="/book.min.2d7fec8e866046a7460a1cc86027535586803606a87c87da3098bcd8d5a2b62d.css" integrity="sha256-LX/sjoZgRqdGChzIYCdTVYaANgaofIfaMJi82NWiti0=" crossorigin="anonymous">
   <script defer src="/fuse.min.js"></script>
-  <script defer src="/en.search.min.f014f51bd21019e67f78bcb793d4b40ce8d29fa9ea384853c057abf4a11b3abd.js" integrity="sha256-8BT1G9IQGeZ/eLy3k9S0DOjSn6nqOEhTwFer9KEbOr0=" crossorigin="anonymous"></script>
+  <script defer src="/en.search.min.9ca685816911759db50b7c465880bc384fdd10c7e80a66f5076dbc240c8a12cc.js" integrity="sha256-nKaFgWkRdZ21C3xGWIC8OE/dEMfoCmb1B228JAyKEsw=" crossorigin="anonymous"></script>
 <!--
 Made with Book Theme
 https://github.com/alex-shpak/hugo-book
@@ -121,7 +121,7 @@ https://github.com/alex-shpak/hugo-book
         
   <nav>
 <h2 class="book-brand">
-  <a class="flex align-center" href="/"><span>Note</span>
+  <a class="flex align-center" href="/"><span>Zxin</span>
   </a>
 </h2>
 
@@ -157,11 +157,11 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <span>学习</span>
+    <a href="/docs/%E5%91%A8%E6%8A%A5/" class="">周报</a>
   
 
-          
-  <ul>
+        </li>
+      
     
       
         <li>
@@ -170,11 +170,11 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/%E5%AD%A6%E4%B9%A0/%E5%8A%A8%E6%89%8B%E5%AD%A6%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" class="">动手学深度学习</a>
+    <a href="/docs/%E5%AD%A6%E4%B9%A0/" class="">学习</a>
   
 
-        </li>
-      
+          
+  <ul>
     
   </ul>
 
@@ -207,6 +207,32 @@ https://github.com/alex-shpak/hugo-book
         </li>
       
     
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/%E6%8A%80%E6%9C%AF/vscode/" class="">Vscode</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/%E6%8A%80%E6%9C%AF/%E6%90%AD%E5%BB%BA%E9%A1%B9%E7%9B%AE%E5%B7%A5%E4%BD%9C%E6%B5%81/" class="">搭建项目工作流</a>
+  
+
+        </li>
+      
+    
   </ul>
 
         </li>
@@ -219,11 +245,42 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <span>科研</span>
+    <span>日常</span>
   
 
           
   <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/%E7%A7%91%E7%A0%94/" class="">科研</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/%E7%A7%91%E7%A0%94/%E5%B7%B2%E5%AD%A6%E8%B5%84%E6%BA%90/" class="">已学资源</a>
+  
+
+        </li>
+      
     
       
         <li>
@@ -245,7 +302,7 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/%E7%A7%91%E7%A0%94/%E8%BF%9B%E5%BA%A6/" class="">进度</a>
+    <a href="/docs/%E7%A7%91%E7%A0%94/%E9%A1%B9%E7%9B%AE%E6%B8%85%E5%8D%95/" class="">项目清单</a>
   
 
         </li>
