@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  网络代理
+  #
+
+ssh -R 7897:localhost:7897 211
+export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897 all_proxy=socks5://127.0.0.1:7897
+
+  克隆项目
+  #
+
+git clone --depth 1 --single-branch -b main
+
+  安装依赖
+  #
+
+conda create -y -n 
+conda activate
+pip install -r requirements.txt
+
+  下载模型
+  #
+
+下载hfd
+wget https://hf-mirror.com/hfd/hfd.sh
+chmod a&#43;x hfd.sh
+设置环境变量
+export HF_ENDPOINT=https://hf-mirror.com
+$env:HF_ENDPOINT = &#34;https://hf-mirror.com&#34;
+下载模型
+./hfd.sh &lt;模型&gt;  --hf_username &lt;YOUR_HF_USERNAME&gt; --hf_token &lt;hf_***&gt;
+上传模型
+rsync -avP &lt;源路径&gt; s09011@211:&lt;目标路径&gt;
+
+  启动项目
+  #
+
+指定显卡
+export CUDA_VISIBLE_DEVICES=1
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/%E6%8A%80%E6%9C%AF/%E6%90%AD%E5%BB%BA%E9%A1%B9%E7%9B%AE%E5%B7%A5%E4%BD%9C%E6%B5%81/">
+  <meta property="og:site_name" content="Zxin">
+  <meta property="og:title" content="Zxin">
+  <meta property="og:description" content="网络代理 # ssh -R 7897:localhost:7897 211 export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897 all_proxy=socks5://127.0.0.1:7897 克隆项目 # git clone --depth 1 --single-branch -b main 安装依赖 # conda create -y -n conda activate pip install -r requirements.txt 下载模型 # 下载hfd
+wget https://hf-mirror.com/hfd/hfd.sh chmod a&#43;x hfd.sh 设置环境变量
+export HF_ENDPOINT=https://hf-mirror.com $env:HF_ENDPOINT = &#34;https://hf-mirror.com&#34; 下载模型
+./hfd.sh &lt;模型&gt; --hf_username &lt;YOUR_HF_USERNAME&gt; --hf_token &lt;hf_***&gt; 上传模型
+rsync -avP &lt;源路径&gt; s09011@211:&lt;目标路径&gt; 启动项目 # 指定显卡
+export CUDA_VISIBLE_DEVICES=1">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="技术">
+<title>搭建项目工作流 | Zxin</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/%E6%8A%80%E6%9C%AF/%E6%90%AD%E5%BB%BA%E9%A1%B9%E7%9B%AE%E5%B7%A5%E4%BD%9C%E6%B5%81/">
+<link rel="stylesheet" href="/book.min.2d7fec8e866046a7460a1cc86027535586803606a87c87da3098bcd8d5a2b62d.css" integrity="sha256-LX/sjoZgRqdGChzIYCdTVYaANgaofIfaMJi82NWiti0=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/en.search.min.f3c855683a8b4bf901ccdda566d36d83a5aea6c5a15ff97e40e93bb67219dfa5.js" integrity="sha256-88hVaDqLS/kBzN2lZtNtg6WupsWhX/l&#43;QOk7tnIZ36U=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Zxin</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>搭建项目工作流</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#网络代理">网络代理</a></li>
+    <li><a href="#克隆项目">克隆项目</a></li>
+    <li><a href="#安装依赖">安装依赖</a></li>
+    <li><a href="#下载模型">下载模型</a></li>
+    <li><a href="#启动项目">启动项目</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h2 id="网络代理">
+  网络代理
+  <a class="anchor" href="#%e7%bd%91%e7%bb%9c%e4%bb%a3%e7%90%86">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ssh -R 7897:localhost:7897 <span style="color:#ae81ff">211</span>
+</span></span><span style="display:flex;"><span>export https_proxy<span style="color:#f92672">=</span>http://127.0.0.1:7897 http_proxy<span style="color:#f92672">=</span>http://127.0.0.1:7897 all_proxy<span style="color:#f92672">=</span>socks5://127.0.0.1:7897
+</span></span></code></pre></div><h2 id="克隆项目">
+  克隆项目
+  <a class="anchor" href="#%e5%85%8b%e9%9a%86%e9%a1%b9%e7%9b%ae">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git clone --depth <span style="color:#ae81ff">1</span> --single-branch -b main
+</span></span></code></pre></div><h2 id="安装依赖">
+  安装依赖
+  <a class="anchor" href="#%e5%ae%89%e8%a3%85%e4%be%9d%e8%b5%96">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>conda create -y -n 
+</span></span><span style="display:flex;"><span>conda activate
+</span></span><span style="display:flex;"><span>pip install -r requirements.txt
+</span></span></code></pre></div><h2 id="下载模型">
+  下载模型
+  <a class="anchor" href="#%e4%b8%8b%e8%bd%bd%e6%a8%a1%e5%9e%8b">#</a>
+</h2>
+<p>下载hfd</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wget https://hf-mirror.com/hfd/hfd.sh
+</span></span><span style="display:flex;"><span>chmod a+x hfd.sh
+</span></span></code></pre></div><p>设置环境变量</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>export HF_ENDPOINT<span style="color:#f92672">=</span>https://hf-mirror.com
+</span></span><span style="display:flex;"><span>$env:HF_ENDPOINT <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://hf-mirror.com&#34;</span>
+</span></span></code></pre></div><p>下载模型</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>./hfd.sh &lt;模型&gt;  --hf_username &lt;YOUR_HF_USERNAME&gt; --hf_token &lt;hf_***&gt;
+</span></span></code></pre></div><p>上传模型</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rsync -avP &lt;源路径&gt; s09011@211:&lt;目标路径&gt;
+</span></span></code></pre></div><h2 id="启动项目">
+  启动项目
+  <a class="anchor" href="#%e5%90%af%e5%8a%a8%e9%a1%b9%e7%9b%ae">#</a>
+</h2>
+<p>指定显卡</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>export CUDA_VISIBLE_DEVICES<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+</span></span></code></pre></div></article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#网络代理">网络代理</a></li>
+    <li><a href="#克隆项目">克隆项目</a></li>
+    <li><a href="#安装依赖">安装依赖</a></li>
+    <li><a href="#下载模型">下载模型</a></li>
+    <li><a href="#启动项目">启动项目</a></li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
